@@ -3,7 +3,8 @@ import pika, json
 
 def upload(f, fs, channel, access):
     try:
-        fid = fs.put(f)
+        fid = fs.put(f.stream, filename=f.filename, content_type=f.content_type)
+
     except Exception as err:
         print(err)
         return "internal server error, fs level", 500

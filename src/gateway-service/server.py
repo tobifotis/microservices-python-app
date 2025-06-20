@@ -10,7 +10,6 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 server = Flask(__name__)
 
 mongo_video = PyMongo(server, uri=os.environ.get('MONGODB_VIDEOS_URI'))
-
 mongo_mp3 = PyMongo(server, uri=os.environ.get('MONGODB_MP3S_URI'))
 
 fs_videos = gridfs.GridFS(mongo_video.db)
@@ -33,18 +32,16 @@ def upload():
     access, err = validate.token(request)
 
     if err:
-        unauth_count.inc()
         return err
 
     access = json.loads(access)
 
     if access["admin"]:
-        if len(request.files) > 1 or len(request.files) < 1:
+        if len(request.files) != 1:
             return "exactly 1 file required", 400
 
         for _, f in request.files.items():
             err = util.upload(f, fs_videos, channel, access)
-
             if err:
                 return err
 
@@ -57,7 +54,6 @@ def download():
     access, err = validate.token(request)
 
     if err:
-        unauth_count.inc()
         return err
 
     access = json.loads(access)
